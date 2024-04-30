@@ -29,4 +29,10 @@ export class OrdersService {
 
     return newOrder;
   }
+
+  public deleteOrder(id: string): Order[] {
+    const filteredOrders = this.orders.filter((order) => order.id != id);
+    this.orders = filteredOrders;
+    return this.orders;
+  }
 }
