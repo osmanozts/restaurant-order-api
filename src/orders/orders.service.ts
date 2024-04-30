@@ -11,6 +11,10 @@ export class OrdersService {
     return this.orders;
   }
 
+  public getOrderById(id: string): Order {
+    return this.orders.find((order) => order.id == id);
+  }
+
   public createOrder(createOrderDto: CreateOrderDto): Order {
     const { items, tableNumber } = createOrderDto;
 
