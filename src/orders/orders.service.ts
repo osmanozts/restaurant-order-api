@@ -20,48 +20,9 @@ export class OrdersService {
       tableNumber: tableNumber,
       status: OrderStatusEnum.DRAFT,
     };
+
     this.orders?.push(newOrder);
 
-    console.log('🚀 ~ newOrder:', newOrder);
-
     return newOrder;
-  }
-
-  public randomShit() {
-    const payload = {
-      items: [
-        {
-          food: {
-            name: 'Döner Tasche',
-            price: 6.0,
-          },
-          details: ['Marol', 'Coban', 'Sogan', 'Cacik', 'P - K'],
-          drinks: [
-            {
-              name: 'Uludag',
-              price: 1.5,
-              pfand: false,
-            },
-          ],
-          description: '',
-        },
-        {
-          food: {
-            name: 'Döner Tasche',
-            price: 6.0,
-          },
-          details: ['Marol', 'Coban', 'Sogan', 'Cacik', 'P - K'],
-          drinks: [
-            {
-              name: 'Uludag',
-              price: 1.5,
-              pfand: false,
-            },
-          ],
-          description: '',
-        },
-      ],
-      tableNumber: 1,
-    };
   }
 }
