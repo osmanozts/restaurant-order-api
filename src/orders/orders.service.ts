@@ -35,4 +35,16 @@ export class OrdersService {
     this.orders = filteredOrders;
     return this.orders;
   }
+
+  public updateOrder(id: string, updateOrder: Order): Order[] {
+    const updatedOrders = this.orders.map((order) => {
+      if (order.id != id) {
+        return updateOrder;
+      } else {
+        return order;
+      }
+    });
+    this.orders = updatedOrders;
+    return this.orders;
+  }
 }

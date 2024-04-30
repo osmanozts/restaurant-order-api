@@ -26,4 +26,12 @@ export class OrdersController {
   private deleteOrder(@Param('id') id: string): Order[] {
     return this.ordersService.deleteOrder(id);
   }
+
+  @Delete('/:id/:updatedOrder')
+  private updateOrder(
+    @Param('id') id: string,
+    @Param('updatedOrder') updatedOrder: Order,
+  ): Order[] {
+    return this.ordersService.updateOrder(id, updatedOrder);
+  }
 }
