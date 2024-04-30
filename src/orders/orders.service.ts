@@ -5,7 +5,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
-  private orders: Order[];
+  private orders: Order[] = [];
 
   public getAllOrders(): Order[] {
     return this.orders;
