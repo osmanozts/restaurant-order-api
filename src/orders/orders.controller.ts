@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { Order } from './order.model';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -25,13 +33,5 @@ export class OrdersController {
   @Delete('/:id')
   private deleteOrder(@Param('id') id: string): Order[] {
     return this.ordersService.deleteOrder(id);
-  }
-
-  @Delete('/:id/:updatedOrder')
-  private updateOrder(
-    @Param('id') id: string,
-    @Param('updatedOrder') updatedOrder: Order,
-  ): Order[] {
-    return this.ordersService.updateOrder(id, updatedOrder);
   }
 }

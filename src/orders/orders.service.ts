@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Order, OrderStatusEnum } from './order.model';
 import { v4 as uuid } from 'uuid';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -12,7 +12,10 @@ export class OrdersService {
   }
 
   public getOrderById(id: string): Order {
-    return this.orders.find((order) => order.id == id);
+    const foundOrder: Order = this.orders.find((order) => order.id == id);
+
+    if (!foundOrder) throw new NotFoundException();
+    return foundOrder;
   }
 
   public createOrder(createOrderDto: CreateOrderDto): Order {
@@ -31,20 +34,12 @@ export class OrdersService {
   }
 
   public deleteOrder(id: string): Order[] {
+    const foundOrder = this.orders.find((order) => order.id == id);
+
+    if (!foundOrder) throw new NotFoundException();
+
     const filteredOrders = this.orders.filter((order) => order.id != id);
     this.orders = filteredOrders;
-    return this.orders;
-  }
-
-  public updateOrder(id: string, updateOrder: Order): Order[] {
-    const updatedOrders = this.orders.map((order) => {
-      if (order.id != id) {
-        return updateOrder;
-      } else {
-        return order;
-      }
-    });
-    this.orders = updatedOrders;
     return this.orders;
   }
 }
