@@ -8,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { Order } from './order.model';
+import { Order } from '../typeorm/entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('orders')
@@ -16,22 +16,22 @@ export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Get()
-  private getAllOrders(): Order[] {
-    return this.ordersService.getAllOrders();
+  private getOrders(): Promise<Order[]> {
+    return this.ordersService.getOrders();
   }
 
   @Get('/:id')
-  private getOrderById(@Param('id') id: string): Order {
+  private getOrderById(@Param('id') id: string): Promise<Order> {
     return this.ordersService.getOrderById(id);
   }
 
   @Post()
-  private createOrder(@Body() createOrderDto: CreateOrderDto): Order {
+  private createOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
     return this.ordersService.createOrder(createOrderDto);
   }
 
   @Delete('/:id')
-  private deleteOrder(@Param('id') id: string): Order[] {
+  private deleteOrder(@Param('id') id: string): Promise<void> {
     return this.ordersService.deleteOrder(id);
   }
 }

@@ -1,45 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Order, OrderStatusEnum } from './order.model';
-import { v4 as uuid } from 'uuid';
+import { Order } from '../typeorm/entities/order.entity';
+import { OrderStatusEnum } from './models/order.status.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrdersService {
-  private orders: Order[] = [];
+  constructor(
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+  ) {}
 
-  public getAllOrders(): Order[] {
-    return this.orders;
+  async getOrders(): Promise<Order[]> {
+    const query = this.orderRepository.createQueryBuilder('orders');
+    const orders = await query.getMany();
+    return orders;
   }
 
-  public getOrderById(id: string): Order {
-    const foundOrder: Order = this.orders.find((order) => order.id == id);
-
+  async getOrderById(id: string): Promise<Order> {
+    const foundOrder = await this.orderRepository.findOneBy({ id });
     if (!foundOrder) throw new NotFoundException();
     return foundOrder;
   }
 
-  public createOrder(createOrderDto: CreateOrderDto): Order {
+  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { items, tableNumber } = createOrderDto;
 
-    const newOrder: Order = {
-      id: uuid(),
-      items: items,
-      tableNumber: tableNumber,
+    const newOrder = await this.orderRepository.create({
+      items,
+      tableNumber,
       status: OrderStatusEnum.DRAFT,
-    };
+    });
 
-    this.orders?.push(newOrder);
+    await this.orderRepository.save(newOrder);
 
     return newOrder;
   }
 
-  public deleteOrder(id: string): Order[] {
-    const foundOrder = this.orders.find((order) => order.id == id);
-
-    if (!foundOrder) throw new NotFoundException();
-
-    const filteredOrders = this.orders.filter((order) => order.id != id);
-    this.orders = filteredOrders;
-    return this.orders;
+  async deleteOrder(id: string): Promise<void> {
+    const result = await this.orderRepository.delete({ id });
+    if (result.affected === 0) throw new NotFoundException();
   }
 }

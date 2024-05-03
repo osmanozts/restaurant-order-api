@@ -1,4 +1,4 @@
-import { OrderItem } from '../order.model';
+import { OrderItem } from '../models/order.item';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateOrderDto {
