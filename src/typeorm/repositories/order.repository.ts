@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { CreateOrderDto } from '../../orders/dto/create-order.dto';
-import { OrderStatusEnum } from '../../orders/models/order.status.enum';
+import { OrderStatusEnum } from '../entities/order.entity';
 
 //DEPRECATED
 @EntityRepository(Order)

@@ -1,6 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { OrderItem } from '../../orders/models/order.item';
-import { OrderStatusEnum } from '../../orders/models/order.status.enum';
 
 @Entity()
 export class Order {
@@ -15,4 +13,18 @@ export class Order {
 
   @Column()
   status: OrderStatusEnum;
+}
+
+export interface OrderItem {
+  food: { name: string; price: number };
+  details: string[];
+  drinks: { name: string; price: number; pfand: boolean }[];
+  description: string;
+}
+
+export enum OrderStatusEnum {
+  DRAFT = 'DRAFT',
+  IN_PROGRESS = 'IN_PROGRESS',
+  SERVED = 'SERVED',
+  DELETED = 'DELETED',
 }

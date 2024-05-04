@@ -1,4 +1,4 @@
-import { OrderItem } from '../models/order.item';
+import { OrderItem } from '../../typeorm/entities/order.entity';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateOrderDto {
