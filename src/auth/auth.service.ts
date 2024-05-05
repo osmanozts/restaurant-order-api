@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/typeorm/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -24,6 +28,8 @@ export class AuthService {
     } catch (error) {
       if (error.code === 23505) {
         throw new ConflictException('username already exists!');
+      } else {
+        throw new InternalServerErrorException();
       }
     }
   }
