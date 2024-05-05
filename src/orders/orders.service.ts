@@ -20,7 +20,7 @@ export class OrdersService {
 
   async getOrderById(id: string): Promise<Order> {
     const foundOrder = await this.orderRepository.findOneBy({ id });
-    if (!foundOrder) throw new NotFoundException();
+    if (!foundOrder) throw new NotFoundException('Order could not be Found');
     return foundOrder;
   }
 
@@ -39,8 +39,8 @@ export class OrdersService {
   }
 
   async deleteOrder(id: string): Promise<void> {
-    console.log('🚀 ~ id:', id);
     const result = await this.orderRepository.delete({ id });
-    if (result.affected === 0) throw new NotFoundException();
+    if (result.affected === 0)
+      throw new NotFoundException('Order could not be Found');
   }
 }
