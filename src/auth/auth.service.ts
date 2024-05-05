@@ -46,7 +46,9 @@ export class AuthService {
 
     const user = await this.userRepository.findOneBy({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
+
+    if (user && isCorrectPassword) {
       return 'success';
     } else {
       throw new UnauthorizedException('Please check your login credentials');
