@@ -1,25 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { OrderItem } from './order-item.entity';
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('json')
-  items: OrderItem[];
+  @OneToMany((_type) => OrderItem, (orderItem) => orderItem.order, {
+    eager: true,
+  })
+  orderItems: OrderItem[];
 
   @Column()
   tableNumber: number;
 
   @Column()
   status: OrderStatusEnum;
-}
-
-export interface OrderItem {
-  food: { name: string; price: number };
-  details: string[];
-  drinks: { name: string; price: number; pfand: boolean }[];
-  description: string;
 }
 
 export enum OrderStatusEnum {

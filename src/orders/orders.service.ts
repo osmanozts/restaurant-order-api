@@ -4,17 +4,20 @@ import { OrderStatusEnum } from '../typeorm/entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { OrderItem } from 'src/typeorm/entities/order-item.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private orderItemRepository: Repository<OrderItem>,
   ) {}
 
   async getOrders(): Promise<Order[]> {
-    const query = this.orderRepository.createQueryBuilder('orders');
-    const orders = await query.getMany();
+    const orders = await this.orderRepository.find({});
+
     return orders;
   }
 
@@ -26,14 +29,25 @@ export class OrdersService {
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { items, tableNumber } = createOrderDto;
-
+    // kl
     const newOrder = await this.orderRepository.create({
-      items,
+      orderItems: items,
       tableNumber,
       status: OrderStatusEnum.DRAFT,
     });
 
     await this.orderRepository.save(newOrder);
+    items.forEach(async (item) => {
+      const newOrderOtem = await this.orderItemRepository.create({
+        food: item.food,
+        details: item.details,
+        drinks: item.drinks,
+        description: item.description,
+        order: newOrder,
+      });
+
+      await this.orderItemRepository.save(newOrderOtem);
+    });
 
     return newOrder;
   }
