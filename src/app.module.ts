@@ -1,23 +1,32 @@
 import { Module } from '@nestjs/common';
 import { OrdersModule } from './orders/orders.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Order } from './typeorm/entities/order.entity';
 import { AuthModule } from './auth/auth.module';
+import { OrderItem } from './typeorm/entities/order-item.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT, 10),
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      autoLoadEntities: true,
-      synchronize: true,
-      entities: [Order],
+    ConfigModule.forRoot({
+      envFilePath: [`.env.${process.env.STAGE}.local`],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        return {
+          type: 'postgres',
+          autoLoadEntities: true,
+          synchronize: true,
+          host: config.get('DATABASE_HOST'),
+          port: config.get('DATABASE_PORT'),
+          username: config.get('DATABASE_USERNAME'),
+          password: config.get('DATABASE_PASSWORD'),
+          database: config.get('DATABASE_NAME'),
+          entities: [Order, OrderItem],
+        };
+      },
     }),
     OrdersModule,
     AuthModule,
