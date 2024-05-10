@@ -29,7 +29,7 @@ export class OrdersService {
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { items, tableNumber } = createOrderDto;
-    // kl
+
     const newOrder = await this.orderRepository.create({
       orderItems: items,
       tableNumber,
