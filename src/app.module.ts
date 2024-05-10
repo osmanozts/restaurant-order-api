@@ -26,6 +26,7 @@ import { configValiationSchema } from './config.schema';
           type: 'postgres',
           autoLoadEntities: true,
           synchronize: true,
+          url: config.get('DATABASE_URL'),
           host: config.get('DATABASE_HOST'),
           port: config.get('DATABASE_PORT'),
           username: config.get('DATABASE_USERNAME'),
