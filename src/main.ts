@@ -9,6 +9,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:8080',
       'https://web.postman.co',
+      'https://restaurant-order-api.vercel.app/',
     ],
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true,
