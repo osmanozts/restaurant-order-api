@@ -8,6 +8,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:8080',
+      'http://localhost:8081',
+      'http://localhost:5173',
       'https://web.postman.co',
       'https://restaurant-order-api.vercel.app/',
     ],
