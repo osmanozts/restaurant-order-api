@@ -5,8 +5,9 @@ import { User } from '../typeorm/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AtStrategy } from './strategies/at.strategy';
+import { RtStrategy } from './strategies/rt.strategy';
 
 @Module({
   imports: [
@@ -19,15 +20,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         return {
           secret: config.get('JWT_SECRET'),
           signOptions: {
-            expiresIn: 86400,
+            expiresIn: '15m',
           },
         };
       },
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, AtStrategy, RtStrategy],
   controllers: [AuthController],
-  exports: [JwtStrategy, PassportModule],
+  exports: [AtStrategy, RtStrategy, PassportModule],
 })
 export class AuthModule {}

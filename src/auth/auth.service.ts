@@ -11,7 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInUserDto } from 'src/auth/dto/sign-in-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './strategies/jwt-payload.interface';
+import { JwtPayload } from './strategies/jwt-payload';
 
 @Injectable()
 export class AuthService {
@@ -44,19 +44,66 @@ export class AuthService {
     }
   }
 
-  async signIn(signInUserDto: SignInUserDto): Promise<{ accessToken: string }> {
-    const { email, password } = signInUserDto;
+  async signIn(
+    signInUserDto: SignInUserDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const { email, password: givenPassword } = signInUserDto;
 
     const user = await this.userRepository.findOneBy({ email });
 
-    const isCorrectPassword = await bcrypt.compare(password, user.password);
+    const isCorrectPassword = await bcrypt.compare(
+      givenPassword,
+      user.password,
+    );
+
+    const { password, ...destructuredUser } = user;
 
     if (user && isCorrectPassword) {
-      const payload: JwtPayload = { email };
-      const accessToken: string = await this.jwtService.sign(payload);
-      return { accessToken };
+      const payload: JwtPayload = { ...destructuredUser };
+      const accessToken: string = await this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '15m',
+      });
+      const refreshToken: string = await this.jwtService.sign(payload, {
+        secret: process.env.JWT_RT_SECRET,
+        expiresIn: '7d',
+      });
+
+      // Save the refresh token in the database (optional)
+      user.refreshToken = refreshToken;
+      await this.userRepository.save(user);
+
+      return { accessToken, refreshToken };
     } else {
       throw new UnauthorizedException('Please check your login credentials');
     }
+  }
+
+  async refreshToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, refreshToken },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const payload: JwtPayload = { email: user.email };
+    const newAccessToken: string = await this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '15m',
+    });
+    const newRefreshToken: string = await this.jwtService.sign(payload, {
+      secret: process.env.JWT_RT_SECRET,
+      expiresIn: '7d',
+    });
+
+    user.refreshToken = newRefreshToken;
+    await this.userRepository.save(user);
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 }
