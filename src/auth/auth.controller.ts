@@ -1,37 +1,76 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dto/sign-in-user.dto';
-import { JwtPayload } from './strategies/jwt-payload';
+import { JwtPayloadWithRt } from './strategies/jwt-payload-with-rt';
 import { RtStrategy } from './strategies/rt.strategy';
+
+interface CustomRequest extends Request {
+  refreshToken: string; // Definiere refreshToken als Eigenschaft des Request-Objekts
+}
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signUp')
-  private signUp(@Body() createUserDto: CreateUserDto): Promise<void> {
-    return this.authService.createUser(createUserDto);
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<void> {
+    await this.authService.createUser(createUserDto);
   }
 
   @Post('/signIn')
-  private signIn(
+  async signIn(
     @Body() signInUserDto: SignInUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    return this.authService.signIn(signInUserDto);
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const { accessToken, refreshToken } =
+      await this.authService.signIn(signInUserDto);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.json({ accessToken, refreshToken });
   }
 
   @Post('/refresh')
   @UseGuards(RtStrategy)
-  async refreshTokens(@Req() req: Request, @Res() res: Response) {
-    const user = req.user as JwtPayload;
-    const refreshToken = req.cookies['refreshToken'];
+  async refreshTokens(
+    @Req() req: CustomRequest, // Verwende das angepasste Request-Interface
+    @Body() user: JwtPayloadWithRt,
+    @Res() res: Response,
+  ) {
+    if (!user || !user.email) {
+      throw new UnauthorizedException('Invalid token payload');
+    }
 
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.authService.refreshToken(user.email, refreshToken);
+    const refreshToken = req.cookies.refreshToken;
 
-    res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
-    return res.json({ accessToken });
+    try {
+      const { accessToken, refreshToken: newRefreshToken } =
+        await this.authService.refreshToken(user.email, refreshToken);
+
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      return res.json({ accessToken });
+    } catch (error) {
+      console.error(error);
+      throw new UnauthorizedException('Invalid refresh token', error);
+    }
   }
 }
