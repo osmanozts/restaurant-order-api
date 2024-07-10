@@ -25,10 +25,10 @@ import { RtStrategy } from './strategies/rt.strategy';
         },
       }),
     }),
-    TypeOrmModule.forFeature([User]), // UserRepository hier registrieren
+    TypeOrmModule.forFeature([User]),
   ],
   providers: [AuthService, AtStrategy, RtStrategy],
   controllers: [AuthController],
-  exports: [PassportModule, AtStrategy, RtStrategy], // Exportieren Sie die Strategies und PassportModule
+  exports: [PassportModule, AtStrategy, RtStrategy],
 })
 export class AuthModule {}

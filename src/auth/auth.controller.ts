@@ -15,7 +15,7 @@ import { JwtPayloadWithRt } from './strategies/jwt-payload-with-rt';
 import { RtStrategy } from './strategies/rt.strategy';
 
 interface CustomRequest extends Request {
-  refreshToken: string; // Definiere refreshToken als Eigenschaft des Request-Objekts
+  refreshToken: string;
 }
 
 @Controller('auth')
@@ -47,7 +47,7 @@ export class AuthController {
   @Post('/refresh')
   @UseGuards(RtStrategy)
   async refreshTokens(
-    @Req() req: CustomRequest, // Verwende das angepasste Request-Interface
+    @Req() req: CustomRequest,
     @Body() user: JwtPayloadWithRt,
     @Res() res: Response,
   ) {

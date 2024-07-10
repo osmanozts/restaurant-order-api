@@ -39,7 +39,7 @@ import { configValiationSchema } from './config.schema';
       }),
     }),
     OrdersModule,
-    AuthModule, // AuthModule hier importieren
+    AuthModule,
   ],
   controllers: [],
   providers: [], // Keine Strategies direkt im AppModule als Provider hinzufügen
